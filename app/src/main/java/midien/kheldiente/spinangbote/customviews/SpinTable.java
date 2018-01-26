@@ -5,19 +5,28 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 
 import java.util.List;
+import java.util.Random;
 
 import midien.kheldiente.spinangbote.R;
 
-public class SpinTable extends View {
+import static android.support.v4.util.Preconditions.checkNotNull;
+
+public class SpinTable extends ViewGroup {
 
     List<Paint> mPlayerPaints;
 
@@ -26,9 +35,11 @@ public class SpinTable extends View {
     Paint mOuterCirclePaint;
     Paint mLinePaint;
 
-    Bitmap  mBottle;
+    RectF mBottleBounds;
 
-    private int mPlayerSize = 0;s
+    BottleView mBottleView;
+
+    private int mPlayerSize = 0;
 
     private static final int ALPHA = 100;
 
@@ -53,9 +64,17 @@ public class SpinTable extends View {
     private float mBottleRight = 0;
     private float mBottleBottom = 0;
 
+    private OnBottleStoppedListener mListener;
+
     public SpinTable(Context context) {
         super(context);
         init();
+    }
+
+    public interface OnBottleStoppedListener {
+
+        void onBottleStopped();
+
     }
 
     public SpinTable(Context context, AttributeSet attrs) {
@@ -129,8 +148,18 @@ public class SpinTable extends View {
         mLinePaint.setStrokeWidth(20);
         mLinePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
-        mBottle = BitmapFactory.decodeResource(getResources(), R.drawable.bottle);
-        invalidate();
+
+        // Draw views
+        setWillNotDraw(false);
+
+        // Draw bottle
+        mBottleView = new BottleView(getContext());
+        addView(mBottleView);
+    }
+
+    public void setListener(OnBottleStoppedListener listener) {
+        checkNotNull(listener);
+        mListener = listener;
     }
 
     /**
@@ -170,6 +199,13 @@ public class SpinTable extends View {
         mBottleTop = (mInnerCircleCenterY - mInnerCircleRadius) + (mInnerCircleRadius / 4);
         mBottleRight = w - (mInnerCircleCenterX / 2) - (mInnerCircleRadius / 2.3f);
         mBottleBottom = mInnerCircleCenterY + mInnerCircleRadius - (mInnerCircleRadius / 4);
+
+        // Lay out the child view that actually draws the pie.
+        mBottleView.layout((int) mBottleLeft,
+                (int )mBottleTop,
+                (int) mBottleRight,
+                (int) mBottleBottom);
+
     }
 
     @Override
@@ -183,11 +219,45 @@ public class SpinTable extends View {
         canvas.drawCircle(mInnerCircleCenterX, mInnerCircleCenterY, mInnerCircleRadius, mInnerCircleStrokePaint);
         // Draw inner circle fill
         canvas.drawCircle(mInnerCircleCenterX, mInnerCircleCenterY, mInnerCircleRadius, mInnerCircleFillPaint);
-        // Draw bottle
-        // canvas.drawBitmap(mBottle, mBottleLeft, mBottleTop, null);
-        canvas.drawBitmap(mBottle, null, new RectF(mBottleLeft, mBottleTop, mBottleRight, mBottleBottom), null);
-        // then recycle after use
-        mBottle.recycle();
+    }
+
+    private class BottleView extends View {
+
+        Bitmap  mBottle;
+
+        public BottleView(Context context) {
+            super(context);
+            init();
+        }
+
+        public BottleView(Context context, @Nullable AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        private void init() {
+            // Set up bottle image
+            mBottle = BitmapFactory.decodeResource(getResources(), R.drawable.bottle);
+            invalidate();
+        }
+
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            mBottleBounds = new RectF(0.0f, 0.0f, w, h);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            // Draw bottle
+            canvas.drawBitmap(mBottle, null, mBottleBounds, null);
+            // then recycle after use
+            mBottle.recycle();
+        }
+
     }
 
 }
