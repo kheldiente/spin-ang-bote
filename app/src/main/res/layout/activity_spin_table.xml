@@ -8,9 +8,11 @@
     tools:context=".SpinTableActivity">
 
     <midien.kheldiente.spinangbote.customviews.SpinTable
+        android:id="@+id/spin_table"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        custom:players="5"
         android:padding="15dp" />
 
     <Button
