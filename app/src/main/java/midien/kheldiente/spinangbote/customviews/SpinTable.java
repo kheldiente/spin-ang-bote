@@ -1,6 +1,5 @@
 package midien.kheldiente.spinangbote.customviews;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -16,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 
@@ -34,11 +32,16 @@ public class SpinTable extends ViewGroup {
     RoundTableView mRoundTableView;
 
     private int PLAYERS = 2;
+    private List<float[]> mPlayerCoords;
 
-    private static final int ALPHA_VAL = 100;
+    // 1 will put the text in the border,
+    // 0 will put the text in the center. Play with this to set the distance of your text.
+    private static final float PLAYER_RADIUS_BIAS = 0.66f;
+
+    private static final int ALPHA_VAL = 60;
 
     private static final float BOTTLE_PADDING_TOP_BOTTOM = 1.1f;
-    private static final float BOTTLE_PADDING_LEFT_RIGHT = 3.2f;
+    private static final float BOTTLE_PADDING_LEFT_RIGHT = 3.8f;
 
     private float xPadding = 0.0f;
     private float yPadding = 0.0f;
@@ -125,6 +128,77 @@ public class SpinTable extends ViewGroup {
         addView(mBottleView);
     }
 
+    private static List<float[]> getPoints(float cx, float cy, float r, int noOfPoints) {
+        // No. of points are n > 2 or n <= 8
+        if(noOfPoints < 2 || noOfPoints > 8)
+            noOfPoints = 2;
+
+        List<float[]> points = new ArrayList<>(noOfPoints);
+        float[] point;
+
+        double angle;
+
+        for(int i = 0;i < noOfPoints;i++)
+        {
+            angle = i * (360 / noOfPoints);
+            point = new float[2];
+            point[0] = (float) (cx + r * Math.cos(Math.toRadians(angle)));
+            point[1] = (float) (cy + r * Math.sin(Math.toRadians(angle)));
+            points.add(point);
+        }
+        return points;
+    }
+
+    private static List<float[]> getStartAndSweepAngles(int noOfPoints) {
+        // No. of points are n > 2 or n <= 8
+        if(noOfPoints < 2 || noOfPoints > 8)
+            noOfPoints = 2;
+
+        List<float[]> angles = new ArrayList<>(noOfPoints);
+
+        for(int i = 0;i < noOfPoints;i++) {
+            float[] a = new float[2]; // index 0 is startAngle and 1 is sweepAngle
+
+            float startAngle =  i * (360 / noOfPoints);
+            float sweepAngle = 360 / noOfPoints;
+
+            a[0] = startAngle;
+            a[1] = sweepAngle;
+
+            angles.add(a);
+        }
+
+        return angles;
+    }
+
+    private static List<float[]> getPlayerViewCoordinates(float cx, float cy, float radius, int noOfPlayers) {
+        List<float[]> angles = getStartAndSweepAngles(noOfPlayers);
+
+
+        float temp = 0;
+        // 1 will put the text in the border,
+        // 0 will put the text in the center. Play with this to set the distance of your text.
+        radius *= PLAYER_RADIUS_BIAS;
+
+        List<float[]> playerCoords = new ArrayList<>(noOfPlayers);
+        for(int i = 0;i < angles.size();i++) {
+            float sweepAngle = angles.get(i)[1];
+            if (i > 0)
+                temp += sweepAngle;
+
+            // this angle will place the text in the center of the arc.
+            float medianAngle = (temp + (sweepAngle / 2f)) * (float) Math.PI / 180f;
+
+            float[] coords = new float[2];
+            coords[0] = (float)(cx + (radius * Math.cos(medianAngle)));
+            coords[1] = (float)(cy + (radius * Math.sin(medianAngle)));
+
+            playerCoords.add(coords);
+        }
+
+        return playerCoords;
+    }
+
     public void setListener(OnBottleStoppedListener listener) {
         checkNotNull(listener);
         mListener = listener;
@@ -158,12 +232,12 @@ public class SpinTable extends ViewGroup {
 
         mOuterCircleCenterX = (float) w / 2; //Divide by 2 to center
         mOuterCircleCenterY = (float) h / 2; // Divide by 2 to center
-        mOuterCircleRadius = Math.min(mOuterCircleCenterX, mOuterCircleCenterY) - xPadding;
+        mOuterCircleRadius = Math.min(mOuterCircleCenterX, mOuterCircleCenterY);
 
-        mOuterCircleLeft = mOuterCircleCenterX - mOuterCircleRadius;
-        mOuterCircleTop = mOuterCircleCenterY + mOuterCircleRadius;
-        mOuterCircleRight = mOuterCircleCenterX + mOuterCircleRadius;
-        mOuterCircleBottom = mOuterCircleCenterY - mOuterCircleRadius;
+        mOuterCircleLeft = 0 + xPadding;
+        mOuterCircleTop = mOuterCircleCenterY + yPadding - (w / 4 * 2) ;
+        mOuterCircleRight = w - xPadding;
+        mOuterCircleBottom = mOuterCircleCenterY - yPadding + (w / 4 * 2);
 
         // Lay out the child view that actually draws the round table.
         mRoundTableView.layout((int) mOuterCircleLeft,
@@ -173,16 +247,31 @@ public class SpinTable extends ViewGroup {
 
 
         // Bound coordinates for bottle
-        mBottleLeft = (mOuterCircleCenterX / 2) + (mOuterCircleRadius / BOTTLE_PADDING_LEFT_RIGHT);
-        mBottleTop = (mOuterCircleCenterY - mOuterCircleRadius / BOTTLE_PADDING_TOP_BOTTOM) + (mOuterCircleRadius / 2);
-        mBottleRight = w - (mOuterCircleCenterX / 2) - (mOuterCircleRadius / BOTTLE_PADDING_LEFT_RIGHT);
-        mBottleBottom = (mOuterCircleCenterY + mOuterCircleRadius / BOTTLE_PADDING_TOP_BOTTOM) - (mOuterCircleRadius / 2);
+        mBottleLeft = ((mOuterCircleCenterX + xPadding) / 2) + (mOuterCircleRadius / BOTTLE_PADDING_LEFT_RIGHT);
+        mBottleTop = (mOuterCircleCenterY + yPadding - mOuterCircleRadius / BOTTLE_PADDING_TOP_BOTTOM) + (mOuterCircleRadius / 2);
+        mBottleRight = w - ((mOuterCircleCenterX + xPadding) / 2) - (mOuterCircleRadius / BOTTLE_PADDING_LEFT_RIGHT);
+        mBottleBottom = (mOuterCircleCenterY - yPadding + mOuterCircleRadius / BOTTLE_PADDING_TOP_BOTTOM) - (mOuterCircleRadius / 2);
 
         // Lay out the child view that actually draws the bottle.
         mBottleView.layout((int) mBottleLeft,
                 (int )mBottleTop,
                 (int) mBottleRight,
                 (int) mBottleBottom);
+
+        // Get player view coordinates
+        mPlayerCoords = getPlayerViewCoordinates(mOuterCircleCenterX, mOuterCircleCenterY, mOuterCircleRadius, PLAYERS);
+
+        // Draw the player's name
+        for(float[] p: mPlayerCoords) {
+            PlayerView pv = new PlayerView(getContext());
+            pv.layout((int) p[0] - 80,
+                    (int) p[1] - 40,
+                    (int) p[0] + 80,
+                    (int) p[1] + 40
+            );
+
+            addView(pv);
+        }
 
     }
 
@@ -197,18 +286,20 @@ public class SpinTable extends ViewGroup {
      */
     private class RoundTableView extends View {
 
-        List<float[]> mPoints;
+        private List<float[]> mPoints;
+        private List<float[]> mAngles;
 
-        Paint mInnerCircleStrokePaint;
-        Paint mInnerCircleFillPaint;
-        Paint mOuterCirclePaint;
-        Paint mLinePaint;
+        private Paint mInnerCircleStrokePaint;
+        private Paint mInnerCircleFillPaint;
+        private Paint mOuterCirclePaint;
+        private Paint mLinePaint;
 
-        RectF mOuterCircleBounds;
-        RectF mInnerCircleBounds;
+        private RectF mOuterCircleBounds;
+        private RectF mInnerCircleBounds;
 
         private float mRoundCenterX = 0.0f;
         private float mRoundCenterY = 0.0f;
+        private float mRadius = 0.0f;
 
         public RoundTableView(Context context) {
             super(context);
@@ -220,31 +311,12 @@ public class SpinTable extends ViewGroup {
             init();
         }
 
-        private List<float[]> getPoints(float cx, float cy, float r, int noOfPoints) {
-            // No. of points is always 2 or more than.
-            if(noOfPoints < 2 || noOfPoints > 8)
-                noOfPoints = 2;
-
-            List<float[]> points = new ArrayList<>(noOfPoints);
-            float[] point;
-
-            double angle;
-
-            for(int i = 0;i < noOfPoints;i++)
-            {
-                angle = i * (360 / noOfPoints);
-                point = new float[2];
-                point[0] = (float) (cx + r * Math.cos(Math.toRadians(angle)));
-                point[1] = (float) (cy + r * Math.sin(Math.toRadians(angle)));
-                points.add(point);
-            }
-            return points;
-        }
-
         private void init() {
+            // setBackgroundColor(Color.BLACK);
             // Set up the paint for outer circle.
             mOuterCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mOuterCirclePaint.setStyle(Paint.Style.FILL);
+            mOuterCirclePaint.setColor(Color.BLACK);
             mOuterCirclePaint.setAlpha(ALPHA_VAL);
 
             // Set up the fill paint for inner circle.
@@ -266,9 +338,6 @@ public class SpinTable extends ViewGroup {
             mLinePaint.setStrokeWidth(20);
             mLinePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
-
-
-            invalidate();
         }
 
         @Override
@@ -281,20 +350,25 @@ public class SpinTable extends ViewGroup {
             mInnerCircleBounds = new RectF(w / 4, h / 4, (w / 4) * 3, (h / 4) * 3);
 
             // Coordinates for center
-            mRoundCenterX = w / 2;
-            mRoundCenterY = h / 2;
+            mRoundCenterX = (mOuterCircleBounds.left + mOuterCircleBounds.right) / 2;
+            mRoundCenterY = (mOuterCircleBounds.top + mOuterCircleBounds.bottom) / 2;
+            mRadius = (mOuterCircleBounds.right - mOuterCircleBounds.left) / 2;
 
             // Get coordinates for line(s)
-            mPoints = getPoints(mRoundCenterX, mRoundCenterY, 500, PLAYERS);
+            mPoints = getPoints(mRoundCenterX, mRoundCenterY, 1000, PLAYERS);
 
+            // Get angles for arcs
+            mAngles = getStartAndSweepAngles(PLAYERS);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
 
-            // Draw outer circle
-            canvas.drawOval(mOuterCircleBounds, mOuterCirclePaint);
+            // Draw arcs to form a circle
+            for(float[] angles: mAngles) {
+                canvas.drawArc(mOuterCircleBounds, angles[0], angles[1], true, mOuterCirclePaint);
+            }
             // Draw the divider lines
             for(float[] p: mPoints) {
                 canvas.drawLine(mRoundCenterX, mRoundCenterY, p[0], p[1], mLinePaint);
@@ -306,13 +380,57 @@ public class SpinTable extends ViewGroup {
         }
     }
 
+    private class PlayerView extends View {
+
+        Paint mNamePaint;
+
+        private final int TEXT_SIZE = 50;
+
+        private String name = "Player";
+        private float centerX = 0.0f;
+        private float centerY = 0.0f;
+
+        public PlayerView(Context context) {
+            super(context);
+            init();
+        }
+
+        public PlayerView(Context context, @Nullable AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        private void init() {
+            mNamePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mNamePaint.setColor(Color.BLACK);
+            mNamePaint.setTextAlign(Paint.Align.CENTER);
+            mNamePaint.setTextSize(TEXT_SIZE);
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+
+            centerX = w / 2;
+            centerY = h / 2;
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            // Draw the player's name
+            canvas.drawText(name, centerX, centerY, mNamePaint);
+        }
+    }
+
     /**
      * Class for the spinning bottle
      */
     private class BottleView extends View implements Animation.AnimationListener {
 
-        Bitmap  mBottle;
-        RectF mBottleBounds;
+        private Bitmap  mBottle;
+        private RectF mBottleBounds;
 
         private final Random RANDOM = new Random();
 
@@ -341,7 +459,6 @@ public class SpinTable extends ViewGroup {
 
             // Set up bottle image
             mBottle = BitmapFactory.decodeResource(getResources(), R.drawable.bottle);
-            invalidate();
         }
 
         public void spin() {

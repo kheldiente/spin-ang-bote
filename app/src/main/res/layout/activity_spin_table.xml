@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        custom:players="5"
-        android:padding="15dp" />
+        android:padding="10dp"
+        custom:players="4" />
 
     <Button
         android:id="@+id/btn_spin"
