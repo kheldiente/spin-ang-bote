@@ -13,6 +13,7 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -28,17 +29,15 @@ import static android.support.v4.util.Preconditions.checkNotNull;
 
 public class SpinTable extends ViewGroup {
 
+    private static final String TAG = SpinTable.class.getSimpleName();
+
     BottleView mBottleView;
     RoundTableView mRoundTableView;
+    private List<PlayerView> mPlayerViews;
 
-    private int PLAYERS = 2;
-    private List<float[]> mPlayerCoords;
+    private int PLAYERS = 1;
 
-    // 1 will put the text in the border,
-    // 0 will put the text in the center. Play with this to set the distance of your text.
-    private static final float PLAYER_RADIUS_BIAS = 0.66f;
-
-    private static final int ALPHA_VAL = 60;
+    private static final int ALPHA_VAL = 100;
 
     private static final float BOTTLE_PADDING_TOP_BOTTOM = 1.1f;
     private static final float BOTTLE_PADDING_LEFT_RIGHT = 3.8f;
@@ -69,7 +68,7 @@ public class SpinTable extends ViewGroup {
 
     public interface OnBottleStoppedListener {
 
-        void onBottleStopped();
+        void onBottleStopped(String player);
 
     }
 
@@ -120,84 +119,48 @@ public class SpinTable extends ViewGroup {
         // filter won't work
         setLayerToSW(this);
 
-        // Draw round table view
+        // Add round table view
         mRoundTableView = new RoundTableView(getContext());
         addView(mRoundTableView);
-        // Draw bottle
+        // Add bottle
         mBottleView = new BottleView(getContext());
         addView(mBottleView);
-    }
 
-    private static List<float[]> getPoints(float cx, float cy, float r, int noOfPoints) {
-        // No. of points are n > 2 or n <= 8
-        if(noOfPoints < 2 || noOfPoints > 8)
-            noOfPoints = 2;
-
-        List<float[]> points = new ArrayList<>(noOfPoints);
-        float[] point;
-
-        double angle;
-
-        for(int i = 0;i < noOfPoints;i++)
-        {
-            angle = i * (360 / noOfPoints);
-            point = new float[2];
-            point[0] = (float) (cx + r * Math.cos(Math.toRadians(angle)));
-            point[1] = (float) (cy + r * Math.sin(Math.toRadians(angle)));
-            points.add(point);
+        if(isInEditMode()) {
+            // Add all player views
+            mPlayerViews = createPlayerViews(getContext(), PLAYERS);
+            for (PlayerView pv : mPlayerViews) {
+                addView(pv);
+            }
         }
-        return points;
     }
 
-    private static List<float[]> getStartAndSweepAngles(int noOfPoints) {
-        // No. of points are n > 2 or n <= 8
-        if(noOfPoints < 2 || noOfPoints > 8)
-            noOfPoints = 2;
+    public void addPlayer(String name) {
+        if(mPlayerViews == null)
+            mPlayerViews = new ArrayList<>(0);
 
-        List<float[]> angles = new ArrayList<>(noOfPoints);
+        PlayerView pv = new PlayerView(getContext());
+        pv.name = name;
 
-        for(int i = 0;i < noOfPoints;i++) {
-            float[] a = new float[2]; // index 0 is startAngle and 1 is sweepAngle
+        // Add to list
+        mPlayerViews.add(pv);
+        addView(pv);
 
-            float startAngle =  i * (360 / noOfPoints);
-            float sweepAngle = 360 / noOfPoints;
+        // Update the player count
+        PLAYERS = mPlayerViews.size();
 
-            a[0] = startAngle;
-            a[1] = sweepAngle;
+        setWillNotDraw(false);
+    }
 
-            angles.add(a);
+    private static List<PlayerView> createPlayerViews(Context context, int size) {
+        List<PlayerView> pvs = new ArrayList<>(size);
+        for(int s = 0;s < size;s++) {
+            pvs.add(new PlayerView(context));
         }
 
-        return angles;
+        return pvs;
     }
 
-    private static List<float[]> getPlayerViewCoordinates(float cx, float cy, float radius, int noOfPlayers) {
-        List<float[]> angles = getStartAndSweepAngles(noOfPlayers);
-
-
-        float temp = 0;
-        // 1 will put the text in the border,
-        // 0 will put the text in the center. Play with this to set the distance of your text.
-        radius *= PLAYER_RADIUS_BIAS;
-
-        List<float[]> playerCoords = new ArrayList<>(noOfPlayers);
-        for(int i = 0;i < angles.size();i++) {
-            float sweepAngle = angles.get(i)[1];
-            if (i > 0)
-                temp += sweepAngle;
-
-            // this angle will place the text in the center of the arc.
-            float medianAngle = (temp + (sweepAngle / 2f)) * (float) Math.PI / 180f;
-
-            float[] coords = new float[2];
-            coords[0] = (float)(cx + (radius * Math.cos(medianAngle)));
-            coords[1] = (float)(cy + (radius * Math.sin(medianAngle)));
-
-            playerCoords.add(coords);
-        }
-
-        return playerCoords;
-    }
 
     public void setListener(OnBottleStoppedListener listener) {
         checkNotNull(listener);
@@ -245,7 +208,6 @@ public class SpinTable extends ViewGroup {
                 (int) mOuterCircleRight,
                 (int) mOuterCircleBottom);
 
-
         // Bound coordinates for bottle
         mBottleLeft = ((mOuterCircleCenterX + xPadding) / 2) + (mOuterCircleRadius / BOTTLE_PADDING_LEFT_RIGHT);
         mBottleTop = (mOuterCircleCenterY + yPadding - mOuterCircleRadius / BOTTLE_PADDING_TOP_BOTTOM) + (mOuterCircleRadius / 2);
@@ -259,26 +221,20 @@ public class SpinTable extends ViewGroup {
                 (int) mBottleBottom);
 
         // Get player view coordinates
-        mPlayerCoords = getPlayerViewCoordinates(mOuterCircleCenterX, mOuterCircleCenterY, mOuterCircleRadius, PLAYERS);
+        CalcUtils.plotPlayer(mOuterCircleCenterX, mOuterCircleCenterY, mOuterCircleRadius, mPlayerViews);
 
-        // Draw the player's name
-        for(float[] p: mPlayerCoords) {
-            PlayerView pv = new PlayerView(getContext());
-            pv.layout((int) p[0] - 80,
-                    (int) p[1] - 40,
-                    (int) p[0] + 80,
-                    (int) p[1] + 40
+        // Draw the player's names
+        for (PlayerView pv : mPlayerViews) {
+            Log.d(TAG, pv.toString());
+            // Lay out the player views that actually draws the player's name.
+            pv.layout((int) pv.centerX - 100,
+                    (int) pv.centerY - 50,
+                    (int) pv.centerX + 100,
+                    (int) pv.centerY + 50
             );
 
-            addView(pv);
+            pv.setRotation(pv.median + 270);
         }
-
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        // Not needed for now...
     }
 
     /**
@@ -312,7 +268,6 @@ public class SpinTable extends ViewGroup {
         }
 
         private void init() {
-            // setBackgroundColor(Color.BLACK);
             // Set up the paint for outer circle.
             mOuterCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mOuterCirclePaint.setStyle(Paint.Style.FILL);
@@ -355,10 +310,10 @@ public class SpinTable extends ViewGroup {
             mRadius = (mOuterCircleBounds.right - mOuterCircleBounds.left) / 2;
 
             // Get coordinates for line(s)
-            mPoints = getPoints(mRoundCenterX, mRoundCenterY, 1000, PLAYERS);
+            mPoints = CalcUtils.getPoints(mRoundCenterX, mRoundCenterY, 1000, PLAYERS);
 
             // Get angles for arcs
-            mAngles = getStartAndSweepAngles(PLAYERS);
+            mAngles = CalcUtils.getStartAndSweepAngles(PLAYERS);
         }
 
         @Override
@@ -377,50 +332,6 @@ public class SpinTable extends ViewGroup {
             canvas.drawOval(mInnerCircleBounds, mInnerCircleStrokePaint);
             // Draw inner circle fill
             canvas.drawOval(mInnerCircleBounds, mInnerCircleFillPaint);
-        }
-    }
-
-    private class PlayerView extends View {
-
-        Paint mNamePaint;
-
-        private final int TEXT_SIZE = 50;
-
-        private String name = "Player";
-        private float centerX = 0.0f;
-        private float centerY = 0.0f;
-
-        public PlayerView(Context context) {
-            super(context);
-            init();
-        }
-
-        public PlayerView(Context context, @Nullable AttributeSet attrs) {
-            super(context, attrs);
-            init();
-        }
-
-        private void init() {
-            mNamePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            mNamePaint.setColor(Color.BLACK);
-            mNamePaint.setTextAlign(Paint.Align.CENTER);
-            mNamePaint.setTextSize(TEXT_SIZE);
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-
-            centerX = w / 2;
-            centerY = h / 2;
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-
-            // Draw the player's name
-            canvas.drawText(name, centerX, centerY, mNamePaint);
         }
     }
 
@@ -496,7 +407,7 @@ public class SpinTable extends ViewGroup {
 
         @Override
         public void onAnimationEnd(Animation animation) {
-            mListener.onBottleStopped();
+            mListener.onBottleStopped("");
         }
 
         @Override

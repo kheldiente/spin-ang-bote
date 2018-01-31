@@ -19,6 +19,11 @@ public class SpinTableActivity extends AppCompatActivity implements SpinTable.On
 
         final SpinTable spinTable = findViewById(R.id.spin_table);
         spinTable.setListener(this);
+        spinTable.addPlayer("Michael");
+        spinTable.addPlayer("Joem");
+        spinTable.addPlayer("Imelda");
+        spinTable.addPlayer("Joelito");
+
         findViewById(R.id.btn_spin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -28,7 +33,7 @@ public class SpinTableActivity extends AppCompatActivity implements SpinTable.On
     }
 
     @Override
-    public void onBottleStopped() {
+    public void onBottleStopped(String player) {
         Log.d(TAG, "Bottle stopped");
     }
 }
