@@ -1,4 +1,4 @@
-package midien.kheldiente.spinangbote.customviews;
+package midien.kheldiente.spinangbote.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -33,14 +33,14 @@ public class SpinTable extends ViewGroup {
 
     BottleView mBottleView;
     RoundTableView mRoundTableView;
-    private List<PlayerView> mPlayerViews;
+    private List<Player> mPlayers;
 
     private int PLAYERS = 1;
 
     private static final int ALPHA_VAL = 100;
 
     private static final float BOTTLE_PADDING_TOP_BOTTOM = 1.1f;
-    private static final float BOTTLE_PADDING_LEFT_RIGHT = 3.8f;
+    private static final float BOTTLE_PADDING_LEFT_RIGHT = 4.0f;
 
     private float xPadding = 0.0f;
     private float yPadding = 0.0f;
@@ -128,34 +128,34 @@ public class SpinTable extends ViewGroup {
 
         if(isInEditMode()) {
             // Add all player views
-            mPlayerViews = createPlayerViews(getContext(), PLAYERS);
-            for (PlayerView pv : mPlayerViews) {
+            mPlayers = createPlayerViews(getContext(), PLAYERS);
+            for (Player pv : mPlayers) {
                 addView(pv);
             }
         }
     }
 
     public void addPlayer(String name) {
-        if(mPlayerViews == null)
-            mPlayerViews = new ArrayList<>(0);
+        if(mPlayers == null)
+            mPlayers = new ArrayList<>(0);
 
-        PlayerView pv = new PlayerView(getContext());
+        Player pv = new Player(getContext());
         pv.name = name;
 
         // Add to list
-        mPlayerViews.add(pv);
+        mPlayers.add(pv);
         addView(pv);
 
         // Update the player count
-        PLAYERS = mPlayerViews.size();
+        PLAYERS = mPlayers.size();
 
         setWillNotDraw(false);
     }
 
-    private static List<PlayerView> createPlayerViews(Context context, int size) {
-        List<PlayerView> pvs = new ArrayList<>(size);
+    private static List<Player> createPlayerViews(Context context, int size) {
+        List<Player> pvs = new ArrayList<>(size);
         for(int s = 0;s < size;s++) {
-            pvs.add(new PlayerView(context));
+            pvs.add(new Player(context));
         }
 
         return pvs;
@@ -221,10 +221,10 @@ public class SpinTable extends ViewGroup {
                 (int) mBottleBottom);
 
         // Get player view coordinates
-        CalcUtils.plotPlayer(mOuterCircleCenterX, mOuterCircleCenterY, mOuterCircleRadius, mPlayerViews);
+        CalcUtils.plotPlayer(mOuterCircleCenterX, mOuterCircleCenterY, mOuterCircleRadius, mPlayers);
 
         // Draw the player's names
-        for (PlayerView pv : mPlayerViews) {
+        for (Player pv : mPlayers) {
             Log.d(TAG, pv.toString());
             // Lay out the player views that actually draws the player's name.
             pv.layout((int) pv.centerX - 100,
@@ -349,6 +349,8 @@ public class SpinTable extends ViewGroup {
         private float mPivotX = 0.0f;
         private float mPivotY = 0.0f;
 
+        private boolean isSpinning = false;
+
         private int LAST_ANGLE = -1;
         private final static int DURATION = 2500;
 
@@ -373,17 +375,25 @@ public class SpinTable extends ViewGroup {
         }
 
         public void spin() {
+            if(isSpinning)
+                return;
+
+            // Flag if bottle is spinning
+            isSpinning = true;
+
+            Log.d(TAG, String.format("spin => fromAngle: %s, toAngle: %s", LAST_ANGLE, mAngle));
+
             mAngle = RANDOM.nextInt(3600 - 360) + 360;
             mPivotX = getWidth() / 2;
             mPivotY = getHeight() / 2;
 
             mAnimRotate = new RotateAnimation(LAST_ANGLE == -1 ?  0 : LAST_ANGLE, mAngle, mPivotX, mPivotY);
+
             LAST_ANGLE = mAngle;
             mAnimRotate.setDuration(DURATION);
             mAnimRotate.setFillAfter(true);
 
             mAnimRotate.setAnimationListener(this);
-
             startAnimation(mAnimRotate);
         }
 
@@ -407,7 +417,12 @@ public class SpinTable extends ViewGroup {
 
         @Override
         public void onAnimationEnd(Animation animation) {
-            mListener.onBottleStopped("");
+            // Flag if bottle stopped spinning
+            isSpinning = false;
+            // Get angle for bottle
+            int pointedAngle = (LAST_ANGLE - 90) % 360;
+            int playerIndex = CalcUtils.pointedPlayer(pointedAngle, mPlayers);
+            mListener.onBottleStopped(mPlayers.get(playerIndex).name);
         }
 
         @Override

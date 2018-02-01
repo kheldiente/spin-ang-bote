@@ -1,7 +1,5 @@
-package midien.kheldiente.spinangbote.customviews;
+package midien.kheldiente.spinangbote.views;
 
-
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +53,7 @@ public class CalcUtils {
         return angles;
     }
 
-    public static void plotPlayer(float cx, float cy, float radius, List<PlayerView> container) {
+    public static void plotPlayer(float cx, float cy, float radius, List<Player> container) {
         List<float[]> angles = getStartAndSweepAngles(container.size());
 
         float temp = 0;
@@ -71,11 +69,32 @@ public class CalcUtils {
             // This angle will place the text in the center of the arc.
             float medianAngle = (temp + (sweepAngle / 2f)) * (float) Math.PI / 180f; // value is in radians
 
-            PlayerView pv = container.get(i);
+            Player pv = container.get(i);
             pv.name = pv.name.isEmpty() ? "Player" : pv.name;
             pv.centerX = (float)(cx + (radius * Math.cos(medianAngle)));
             pv.centerY = (float)(cy + (radius * Math.sin(medianAngle)));
             pv.median = (float) Math.toDegrees(medianAngle); // convert to degrees
         }
+    }
+
+    public static int pointedPlayer(int angle, List<Player> players) {
+        int pointed = 0;
+
+        float startAngle = 0.0f;
+        float stopAngle;
+
+        for(int i = 0;i < players.size();i++) {
+            float a = players.get(i).median - startAngle;
+            float b = players.get(i).median + a;
+            stopAngle = b;
+
+            if(angle >= startAngle && angle <= stopAngle) {
+                pointed = i;
+                break;
+            }
+
+            startAngle = stopAngle;
+        }
+        return pointed;
     }
 }

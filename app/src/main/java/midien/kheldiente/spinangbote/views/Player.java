@@ -1,4 +1,4 @@
-package midien.kheldiente.spinangbote.customviews;
+package midien.kheldiente.spinangbote.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,26 +8,26 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class PlayerView extends View {
+public class Player extends View {
 
     Paint mNamePaint;
 
     private final int TEXT_SIZE = 50;
 
     public String name = "Player";
-    private int color = Color.BLACK;
+    private int color = Color.WHITE;
 
     public float centerX = 0.0f;
     public float centerY = 0.0f;
 
     public float median = 0.0f;
 
-    public PlayerView(Context context) {
+    public Player(Context context) {
         super(context);
         init();
     }
 
-    public PlayerView(Context context, @Nullable AttributeSet attrs) {
+    public Player(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -39,6 +39,7 @@ public class PlayerView extends View {
     private void init() {
         mNamePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mNamePaint.setColor(color);
+        mNamePaint.setAlpha(200);
         mNamePaint.setTextAlign(Paint.Align.CENTER);
         mNamePaint.setTextSize(TEXT_SIZE);
     }
