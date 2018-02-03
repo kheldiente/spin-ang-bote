@@ -1,7 +1,11 @@
 package midien.kheldiente.spinangbote.spintable;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import midien.kheldiente.spinangbote.R;
 import midien.kheldiente.spinangbote.utils.ActivityUtils;
@@ -14,18 +18,17 @@ public class SpinTableActivity extends AppCompatActivity {
 
     private SpinTablePresenter mSpinTableRepresenter;
 
-    private String[] mPlayers = {"Michael", "Joem", "Imelda", "Joelito"};
-
+    private List<String> mPlayers = new ArrayList<>(0);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spin_table);
 
-
-        if(savedInstanceState != null) {
-            if (savedInstanceState.containsKey(EXTRA_PLAYERS)) {
-                mPlayers = savedInstanceState.getStringArray(EXTRA_PLAYERS);
+        Intent mIntent = getIntent();
+        if(mIntent != null) {
+            if (mIntent.hasExtra(EXTRA_PLAYERS)) {
+                mPlayers = mIntent.getStringArrayListExtra(EXTRA_PLAYERS);
             }
         }
 

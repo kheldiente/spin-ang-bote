@@ -10,6 +10,8 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
     @NonNull
     AddPlayerContract.View mAddPlayerView;
 
+    private static final int MAX_PLAYERS = 8;
+
     private static List<String> mPlayers = new ArrayList<>(0);
 
     static {
@@ -28,14 +30,21 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
     @Override
     public void addPlayer(String player) {
         mPlayers.add(player);
-        // mAddPlayerView.addPlayerView(player);
         mAddPlayerView.showAddPlayerView();
+        // After adding the player view onto the ui, check if it reached the allowed max players
+        if(mPlayers.size() == MAX_PLAYERS) {
+            mAddPlayerView.hideAddMoreView();
+        }
     }
 
     @Override
     public void deletePlayer(int index) {
         mPlayers.remove(index);
         mAddPlayerView.deletePlayerView(index);
+        // After removing player, check if still did not reached the max player count
+        if(mPlayers.size() < MAX_PLAYERS) {
+            mAddPlayerView.showAddPlayerView();
+        }
     }
 
     @Override

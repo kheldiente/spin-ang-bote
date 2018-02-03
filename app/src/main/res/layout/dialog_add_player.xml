@@ -14,6 +14,7 @@
 
     <ImageView
         android:id="@+id/cancel_iv"
+        android:layout_marginTop="10dp"
         style="@style/AppImgButton"
         android:src="@drawable/cancel"
         app:layout_constraintEnd_toStartOf="@+id/ok_iv"
@@ -23,6 +24,7 @@
 
     <ImageView
         android:id="@+id/ok_iv"
+        android:layout_marginTop="10dp"
         style="@style/AppImgButton"
         android:src="@drawable/check"
         app:layout_constraintEnd_toEndOf="parent"

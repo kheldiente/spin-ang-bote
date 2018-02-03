@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 
 public class EditPlayerTextView extends AppCompatTextView {
 
-    private String name = "";
+    public String name = "";
 
     private int mTextColor = Color.BLACK;
 

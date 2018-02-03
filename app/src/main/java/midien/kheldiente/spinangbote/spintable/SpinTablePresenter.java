@@ -3,6 +3,9 @@ package midien.kheldiente.spinangbote.spintable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SpinTablePresenter implements SpinTableContract.Presenter {
 
     private static final String TAG = SpinTablePresenter.class.getSimpleName();
@@ -10,9 +13,9 @@ public class SpinTablePresenter implements SpinTableContract.Presenter {
     @NonNull
     private final SpinTableContract.View mSpinTableView;
 
-    private String[] mPlayers = {"Michael", "Joem", "Imelda", "Joelito"};
+    private List<String> mPlayers = new ArrayList<>(0);
 
-    public SpinTablePresenter(@NonNull SpinTableContract.View spinTable, String[] players) {
+    public SpinTablePresenter(@NonNull SpinTableContract.View spinTable, List<String> players) {
         mSpinTableView = spinTable;
         mPlayers = players;
         mSpinTableView.setPresenter(this);

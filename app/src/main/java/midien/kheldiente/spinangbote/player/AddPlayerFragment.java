@@ -9,11 +9,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import midien.kheldiente.spinangbote.R;
@@ -35,6 +37,7 @@ public class AddPlayerFragment extends Fragment
     private ImageView mAddImgView;
     private TextView mAddTxtView;
     private EditPlayerDialog mEditPlayerDialog;
+    private Button mNextBtn;
 
     List<EditPlayerTextView> mPlayerNames = new ArrayList<>(0);
 
@@ -49,9 +52,11 @@ public class AddPlayerFragment extends Fragment
         mPlayerList = root.findViewById(R.id.ll_player_list);
         mAddImgView = root.findViewById(R.id.add_iv);
         mAddTxtView = root.findViewById(R.id.add_txt);
+        mNextBtn = root.findViewById(R.id.btn_next);
 
         mAddImgView.setOnClickListener(this);
         mAddTxtView.setOnClickListener(this);
+        mNextBtn.setOnClickListener(this);
 
         loadPlayers();
         return root;
@@ -65,9 +70,18 @@ public class AddPlayerFragment extends Fragment
     @Override
     public void goToSpinTable() {
         Intent spinTableAct = new Intent(getContext(), SpinTableActivity.class);
+        spinTableAct.putStringArrayListExtra(SpinTableActivity.EXTRA_PLAYERS, getAllPlayers(mPlayerNames));
         startActivity(spinTableAct, ActivityOptionsCompat.makeCustomAnimation(getContext(),
                 android.R.anim.fade_in,
                 android.R.anim.fade_out).toBundle());
+    }
+
+    private static ArrayList<String> getAllPlayers(List<EditPlayerTextView> pv) {
+        ArrayList<String> p = new ArrayList<>(0);
+        for(EditPlayerTextView ptv: pv) {
+            p.add(ptv.name); // Extract name from {@link EditPlayerTextView}
+        }
+        return p;
     }
 
     @Override
@@ -84,14 +98,11 @@ public class AddPlayerFragment extends Fragment
             ept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showEditPlayerView(mPlayerNames.size() - 1, player);
+                    final int index = mPlayerNames.size() - 1;
+                    showEditPlayerView(index, player);
                 }
             });
         }
-        // After adding the player view onto the ui, check if it reached the allowed max players
-        if(mPlayerNames.size() == MAX_PLAYERS)
-            hideAddMoreView();
-
     }
 
     @Override
@@ -141,6 +152,14 @@ public class AddPlayerFragment extends Fragment
     }
 
     @Override
+    public void onUpdate(int index, String name) {
+        if(index == - 1)
+            addPlayerView(name);
+        else
+            updatePlayerView(index, name);
+    }
+
+    @Override
     public void onClick(View view) {
         int id = view.getId();
         switch (id){
@@ -148,14 +167,9 @@ public class AddPlayerFragment extends Fragment
             case R.id.add_txt:
                 showAddPlayerView();
                 break;
+            case R.id.btn_next:
+                goToSpinTable();
+                break;
         }
-    }
-
-    @Override
-    public void onUpdate(int index, String name) {
-        if(index == - 1)
-            addPlayerView(name);
-        else
-            updatePlayerView(index, name);
     }
 }
