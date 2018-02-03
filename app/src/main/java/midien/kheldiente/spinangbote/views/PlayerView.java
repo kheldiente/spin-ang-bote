@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class Player extends View {
+public class PlayerView extends View {
 
     Paint mNamePaint;
 
@@ -22,12 +22,12 @@ public class Player extends View {
 
     public float median = 0.0f;
 
-    public Player(Context context) {
+    public PlayerView(Context context) {
         super(context);
         init();
     }
 
-    public Player(Context context, @Nullable AttributeSet attrs) {
+    public PlayerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }

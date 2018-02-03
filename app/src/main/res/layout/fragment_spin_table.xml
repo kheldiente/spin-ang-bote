@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <midien.kheldiente.spinangbote.views.SpinTable
+    <midien.kheldiente.spinangbote.views.SpinTableView
         android:id="@+id/spin_table"
         android:layout_width="match_parent"
         android:layout_height="400dp"

@@ -10,16 +10,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import midien.kheldiente.spinangbote.R;
-import midien.kheldiente.spinangbote.views.SpinTable;
+import midien.kheldiente.spinangbote.views.SpinTableView;
 
 
-public class SpinTableFragment extends Fragment implements SpinTableContract.View, SpinTable.OnBottleStoppedListener{
+public class SpinTableFragment extends Fragment implements SpinTableContract.View, SpinTableView.OnBottleStoppedListener{
 
     private static final String TAG = SpinTableFragment.class.getSimpleName();
 
     private SpinTableContract.Presenter mPresenter;
 
-    private SpinTable mSpinTable;
+    private SpinTableView mSpinTableView;
     private Button mSpinBtn;
 
     public static SpinTableFragment newInstance() {
@@ -31,10 +31,10 @@ public class SpinTableFragment extends Fragment implements SpinTableContract.Vie
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_spin_table, container, false);
 
-        mSpinTable = root.findViewById(R.id.spin_table);
+        mSpinTableView = root.findViewById(R.id.spin_table);
         mSpinBtn = root.findViewById(R.id.btn_spin);
 
-        mSpinTable.setListener(this);
+        mSpinTableView.setListener(this);
         mSpinBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,12 +57,12 @@ public class SpinTableFragment extends Fragment implements SpinTableContract.Vie
 
     @Override
     public void spinBottle() {
-        mSpinTable.spinBottle();
+        mSpinTableView.spinBottle();
     }
 
     @Override
-    public void addPlayer(String player) {
-        mSpinTable.addPlayer(player);
+    public void addPlayerView(String player) {
+        mSpinTableView.addPlayer(player);
     }
 
     @Override

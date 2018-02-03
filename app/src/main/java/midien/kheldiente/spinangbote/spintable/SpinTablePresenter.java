@@ -23,7 +23,7 @@ public class SpinTablePresenter implements SpinTableContract.Presenter {
     public void loadPlayers() {
         for(String p: mPlayers) {
             Log.d(TAG, String.format("adding player %s", p));
-            mSpinTableView.addPlayer(p);
+            mSpinTableView.addPlayerView(p);
         }
     }
 

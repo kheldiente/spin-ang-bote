@@ -27,13 +27,13 @@ import midien.kheldiente.spinangbote.R;
 
 import static android.support.v4.util.Preconditions.checkNotNull;
 
-public class SpinTable extends ViewGroup {
+public class SpinTableView extends ViewGroup {
 
-    private static final String TAG = SpinTable.class.getSimpleName();
+    private static final String TAG = SpinTableView.class.getSimpleName();
 
     BottleView mBottleView;
     RoundTableView mRoundTableView;
-    private List<Player> mPlayers;
+    private List<PlayerView> mPlayerViews;
 
     private int PLAYERS = 1;
 
@@ -61,7 +61,7 @@ public class SpinTable extends ViewGroup {
 
     private OnBottleStoppedListener mListener;
 
-    public SpinTable(Context context) {
+    public SpinTableView(Context context) {
         super(context);
         init();
     }
@@ -72,7 +72,7 @@ public class SpinTable extends ViewGroup {
 
     }
 
-    public SpinTable(Context context, AttributeSet attrs) {
+    public SpinTableView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         // attrs contains the raw values for the XML attributes
@@ -84,7 +84,7 @@ public class SpinTable extends ViewGroup {
         // This call uses R.styleable.SpinTable, which is an array of
         // the custom attributes that were declared in attrs.xml
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
-                R.styleable.SpinTable,
+                R.styleable.SpinTableView,
                 0,
                 0);
 
@@ -94,7 +94,7 @@ public class SpinTable extends ViewGroup {
             //
             // The R.styleable.SpinTable_* constants represent the index for
             // each custom attribute in the R.styleable.SpinTable array.
-            PLAYERS = a.getInteger(R.styleable.SpinTable_players, 2);
+            PLAYERS = a.getInteger(R.styleable.SpinTableView_players, 2);
         } finally {
             // release the TypedArray so that it can be reused.
             a.recycle();
@@ -128,34 +128,34 @@ public class SpinTable extends ViewGroup {
 
         if(isInEditMode()) {
             // Add all player views
-            mPlayers = createPlayerViews(getContext(), PLAYERS);
-            for (Player pv : mPlayers) {
+            mPlayerViews = createPlayerViews(getContext(), PLAYERS);
+            for (PlayerView pv : mPlayerViews) {
                 addView(pv);
             }
         }
     }
 
     public void addPlayer(String name) {
-        if(mPlayers == null)
-            mPlayers = new ArrayList<>(0);
+        if(mPlayerViews == null)
+            mPlayerViews = new ArrayList<>(0);
 
-        Player pv = new Player(getContext());
+        PlayerView pv = new PlayerView(getContext());
         pv.name = name;
 
         // Add to list
-        mPlayers.add(pv);
+        mPlayerViews.add(pv);
         addView(pv);
 
         // Update the player count
-        PLAYERS = mPlayers.size();
+        PLAYERS = mPlayerViews.size();
 
         setWillNotDraw(false);
     }
 
-    private static List<Player> createPlayerViews(Context context, int size) {
-        List<Player> pvs = new ArrayList<>(size);
+    private static List<PlayerView> createPlayerViews(Context context, int size) {
+        List<PlayerView> pvs = new ArrayList<>(size);
         for(int s = 0;s < size;s++) {
-            pvs.add(new Player(context));
+            pvs.add(new PlayerView(context));
         }
 
         return pvs;
@@ -221,10 +221,10 @@ public class SpinTable extends ViewGroup {
                 (int) mBottleBottom);
 
         // Get player view coordinates
-        CalcUtils.plotPlayer(mOuterCircleCenterX, mOuterCircleCenterY, mOuterCircleRadius, mPlayers);
+        CalcUtils.plotPlayer(mOuterCircleCenterX, mOuterCircleCenterY, mOuterCircleRadius, mPlayerViews);
 
         // Draw the player's names
-        for (Player pv : mPlayers) {
+        for (PlayerView pv : mPlayerViews) {
             Log.d(TAG, pv.toString());
             // Lay out the player views that actually draws the player's name.
             pv.layout((int) pv.centerX - 100,
@@ -421,8 +421,8 @@ public class SpinTable extends ViewGroup {
             isSpinning = false;
             // Get angle for bottle
             int pointedAngle = (LAST_ANGLE - 90) % 360;
-            int playerIndex = CalcUtils.pointedPlayer(pointedAngle, mPlayers);
-            mListener.onBottleStopped(mPlayers.get(playerIndex).name);
+            int playerIndex = CalcUtils.pointedPlayer(pointedAngle, mPlayerViews);
+            mListener.onBottleStopped(mPlayerViews.get(playerIndex).name);
         }
 
         @Override

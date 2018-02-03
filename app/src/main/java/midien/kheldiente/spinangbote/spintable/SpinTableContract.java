@@ -12,7 +12,7 @@ public interface SpinTableContract {
 
         void spinBottle();
 
-        void addPlayer(String player);
+        void addPlayerView(String player);
 
     }
 

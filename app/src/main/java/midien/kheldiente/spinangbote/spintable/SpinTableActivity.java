@@ -2,12 +2,9 @@ package midien.kheldiente.spinangbote.spintable;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 
 import midien.kheldiente.spinangbote.R;
 import midien.kheldiente.spinangbote.utils.ActivityUtils;
-import midien.kheldiente.spinangbote.views.SpinTable;
 
 public class SpinTableActivity extends AppCompatActivity {
 

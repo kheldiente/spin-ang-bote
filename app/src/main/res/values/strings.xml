@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SpinAngBote</string>
     <string name="spin_label">Spin it</string>
+    <string name="add_player_label">Add more</string>
 </resources>

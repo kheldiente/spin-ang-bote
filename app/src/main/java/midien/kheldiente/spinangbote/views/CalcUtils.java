@@ -53,7 +53,7 @@ public class CalcUtils {
         return angles;
     }
 
-    public static void plotPlayer(float cx, float cy, float radius, List<Player> container) {
+    public static void plotPlayer(float cx, float cy, float radius, List<PlayerView> container) {
         List<float[]> angles = getStartAndSweepAngles(container.size());
 
         float temp = 0;
@@ -69,7 +69,7 @@ public class CalcUtils {
             // This angle will place the text in the center of the arc.
             float medianAngle = (temp + (sweepAngle / 2f)) * (float) Math.PI / 180f; // value is in radians
 
-            Player pv = container.get(i);
+            PlayerView pv = container.get(i);
             pv.name = pv.name.isEmpty() ? "Player" : pv.name;
             pv.centerX = (float)(cx + (radius * Math.cos(medianAngle)));
             pv.centerY = (float)(cy + (radius * Math.sin(medianAngle)));
@@ -77,15 +77,15 @@ public class CalcUtils {
         }
     }
 
-    public static int pointedPlayer(int angle, List<Player> players) {
+    public static int pointedPlayer(int angle, List<PlayerView> playerViews) {
         int pointed = 0;
 
         float startAngle = 0.0f;
         float stopAngle;
 
-        for(int i = 0;i < players.size();i++) {
-            float a = players.get(i).median - startAngle;
-            float b = players.get(i).median + a;
+        for(int i = 0; i < playerViews.size(); i++) {
+            float a = playerViews.get(i).median - startAngle;
+            float b = playerViews.get(i).median + a;
             stopAngle = b;
 
             if(angle >= startAngle && angle <= stopAngle) {
