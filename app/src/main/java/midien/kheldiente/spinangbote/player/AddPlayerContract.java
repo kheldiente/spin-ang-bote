@@ -21,15 +21,21 @@ public interface AddPlayerContract {
 
         void showEditPlayerView(int index, String name);
 
+        void hideEditPlayerView();
+
+        void resetEditPlayerView();
+
         void showAddMoreView();
 
         void hideAddMoreView();
+
+        void showMessageInfo(String msg);
 
     }
 
     interface Presenter extends BasePresenter {
 
-        void addPlayer(String player);
+        boolean addPlayer(String player);
 
         void deletePlayer(int index);
 

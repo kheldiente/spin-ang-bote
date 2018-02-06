@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ public class AddPlayerFragment extends Fragment
     private static final String TAG = AddPlayerFragment.class.getSimpleName();
 
     private static final int MAX_PLAYERS = 8;
+    private static final int MIN_PLAYERS = 2;
 
     private AddPlayerContract.Presenter mPresenter;
 
@@ -94,11 +96,14 @@ public class AddPlayerFragment extends Fragment
             mPlayerNames.add(ept);
             // Add to list view
             mPlayerList.addView(ept);
+            // Set index to EditPlayerTextView setTag()
+            ept.setId(mPlayerNames.size() - 1);
             // Then add onClickListener to show player editor
             ept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final int index = mPlayerNames.size() - 1;
+                    int index = view.getId();
+                    String player = mPlayerNames.get(index).name;
                     showEditPlayerView(index, player);
                 }
             });
@@ -108,6 +113,7 @@ public class AddPlayerFragment extends Fragment
     @Override
     public void deletePlayerView(int index) {
         mPlayerNames.remove(index);
+        mPlayerList.removeViewAt(index);
     }
 
     @Override
@@ -135,8 +141,22 @@ public class AddPlayerFragment extends Fragment
         mEditPlayerDialog = new EditPlayerDialog(getContext());
         mEditPlayerDialog.setOnUpdateListener(this);
         mEditPlayerDialog.setValues(index, name);
+        if(mPlayerNames.size() <= MIN_PLAYERS) // If true, user cannot delete anymore players
+            mEditPlayerDialog.cannotBeDeleted(false);
 
         mEditPlayerDialog.show();
+    }
+
+    @Override
+    public void hideEditPlayerView() {
+        if(mEditPlayerDialog != null)
+            mEditPlayerDialog.dismiss();
+    }
+
+    @Override
+    public void resetEditPlayerView() {
+        if(mEditPlayerDialog != null)
+            mEditPlayerDialog.reset();
     }
 
     @Override
@@ -152,11 +172,34 @@ public class AddPlayerFragment extends Fragment
     }
 
     @Override
+    public void showMessageInfo(String msg) {
+        if(mEditPlayerDialog != null)
+            mEditPlayerDialog.setMessageInfo(msg);
+    }
+
+    @Override
     public void onUpdate(int index, String name) {
-        if(index == - 1)
-            addPlayerView(name);
-        else
-            updatePlayerView(index, name);
+        if(TextUtils.isEmpty(name))
+            return;
+
+        if(index == - 1) {
+            boolean added = mPresenter.addPlayer(name);
+            if(added) {
+                showMessageInfo(getString(R.string.added_player_msg, name));
+                // If player list is not yet on {@value MAX_PLAYERS}, clear edit text and add again
+                resetEditPlayerView();
+                if(mPlayerNames.size() == MAX_PLAYERS)
+                    hideEditPlayerView();
+            } else
+                showMessageInfo(getString(R.string.added_player_fail));
+        } else {
+            mPresenter.updatePlayerName(index, name);
+        }
+    }
+
+    @Override
+    public void onDelete(int index) {
+        mPresenter.deletePlayer(index);
     }
 
     @Override

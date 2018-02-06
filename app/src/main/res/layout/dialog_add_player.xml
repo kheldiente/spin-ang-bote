@@ -6,30 +6,52 @@
     android:background="@drawable/floor_bg"
     android:padding="@dimen/text_size_20">
 
+    <TextView
+        android:id="@+id/msg_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/added_player_msg"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+
     <midien.kheldiente.spinangbote.views.PlayerEditText
         android:id="@+id/add_edittxt"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/AppEditText"/>
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/msg_txt"/>
 
     <ImageView
         android:id="@+id/cancel_iv"
-        android:layout_marginTop="10dp"
         style="@style/AppImgButton"
-        android:src="@drawable/cancel"
-        app:layout_constraintEnd_toStartOf="@+id/ok_iv"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/cross"
+        app:layout_constraintEnd_toStartOf="@+id/delete_iv"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/add_edittxt" />
 
     <ImageView
-        android:id="@+id/ok_iv"
-        android:layout_marginTop="10dp"
+        android:id="@+id/delete_iv"
         style="@style/AppImgButton"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/trash_can"
+        app:layout_constraintEnd_toStartOf="@+id/ok_iv"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/cancel_iv"
+        app:layout_constraintTop_toBottomOf="@id/add_edittxt" />
+
+    <ImageView
+        android:id="@+id/ok_iv"
+        style="@style/AppImgButton"
+        android:layout_marginTop="10dp"
         android:src="@drawable/check"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
-        app:layout_constraintStart_toEndOf="@+id/cancel_iv"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/delete_iv"
         app:layout_constraintTop_toBottomOf="@id/add_edittxt" />
 
 

@@ -28,13 +28,19 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
     public void onCreate() {}
 
     @Override
-    public void addPlayer(String player) {
-        mPlayers.add(player);
-        mAddPlayerView.showAddPlayerView();
-        // After adding the player view onto the ui, check if it reached the allowed max players
-        if(mPlayers.size() == MAX_PLAYERS) {
-            mAddPlayerView.hideAddMoreView();
+    public boolean addPlayer(String player) {
+        if(!nameExists(player) && !nameExceededLength(player)) {
+            // Add to list for reference
+            mPlayers.add(player);
+            // Add to ui
+            mAddPlayerView.addPlayerView(player);
+            // After adding the player view onto the ui, check if it reached the allowed max players
+            if (mPlayers.size() == MAX_PLAYERS) {
+                mAddPlayerView.hideAddMoreView();
+            }
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -43,7 +49,7 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
         mAddPlayerView.deletePlayerView(index);
         // After removing player, check if still did not reached the max player count
         if(mPlayers.size() < MAX_PLAYERS) {
-            mAddPlayerView.showAddPlayerView();
+            mAddPlayerView.showAddMoreView();
         }
     }
 
@@ -51,6 +57,7 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
     public void updatePlayerName(int index, String updatedName) {
         mPlayers.set(index, updatedName);
         mAddPlayerView.updatePlayerView(index, updatedName);
+        mAddPlayerView.hideEditPlayerView();
     }
 
     @Override

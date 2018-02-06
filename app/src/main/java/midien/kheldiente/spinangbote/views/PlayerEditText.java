@@ -60,7 +60,7 @@ public class PlayerEditText extends AppCompatEditText implements View.OnTouchLis
                 if(TextUtils.isEmpty(currentText) || !focused)
                     setCompoundDrawables(null, null, null, null);
                 else {
-                    setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.cancel,0);
+                    setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.cross,0);
                     setCompoundDrawablePadding(10);
                 }
             }
