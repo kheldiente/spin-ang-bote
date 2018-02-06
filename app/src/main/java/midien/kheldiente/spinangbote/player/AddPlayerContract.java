@@ -11,15 +11,15 @@ public interface AddPlayerContract {
 
         void addPlayerView(String player);
 
-        void deletePlayerView(int index);
+        void deletePlayerView(String key);
 
-        void updatePlayerView(int index, String updatedName);
+        void updatePlayerView(String key, String updatedName);
 
         void loadPlayers();
 
         void showAddPlayerView();
 
-        void showEditPlayerView(int index, String name);
+        void showEditPlayerView(String key, String name);
 
         void hideEditPlayerView();
 
@@ -37,11 +37,11 @@ public interface AddPlayerContract {
 
         boolean addPlayer(String player);
 
-        void deletePlayer(int index);
+        void deletePlayer(String key);
 
-        void updatePlayerName(int index, String updatedName);
+        void updatePlayerName(String key, String updatedName);
 
-        String getPlayer(int index);
+        String getPlayer(String key);
 
         boolean checkIfNameIsEmpty(String name);
 

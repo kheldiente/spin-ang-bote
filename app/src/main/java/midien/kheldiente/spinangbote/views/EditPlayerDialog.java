@@ -34,7 +34,7 @@ public class EditPlayerDialog extends Dialog implements View.OnClickListener, Di
     private TextView mMsg;
 
     private String mName = "";
-    private int mIndex = -1;
+    private String mKey = "";
 
     // If true, player can be deleted from the list
     private boolean mDeleteable = true;
@@ -51,9 +51,9 @@ public class EditPlayerDialog extends Dialog implements View.OnClickListener, Di
 
     public interface OnUpdateListener {
 
-        void onUpdate(int index, String name);
+        void onUpdate(String key, String name);
 
-        void onDelete(int index);
+        void onDelete(String key);
 
     }
 
@@ -69,8 +69,8 @@ public class EditPlayerDialog extends Dialog implements View.OnClickListener, Di
         mOnUpdateListener = listener;
     }
 
-    public void setValues(int index, String name) {
-        mIndex = index;
+    public void setValues(String key, String name) {
+        mKey = key;
         mName = name;
     }
 
@@ -146,7 +146,7 @@ public class EditPlayerDialog extends Dialog implements View.OnClickListener, Di
     private void updateName() {
         checkNotNull(mOnUpdateListener);
         mName = mNameEditTxt.getText().toString();
-        mOnUpdateListener.onUpdate(mIndex, mName);
+        mOnUpdateListener.onUpdate(mKey, mName);
     }
 
     private void doNothing() {
@@ -156,7 +156,7 @@ public class EditPlayerDialog extends Dialog implements View.OnClickListener, Di
     private void deletePlayer() {
         dismiss();
         checkNotNull(mOnUpdateListener);
-        mOnUpdateListener.onDelete(mIndex);
+        mOnUpdateListener.onDelete(mKey);
     }
 
     @Override

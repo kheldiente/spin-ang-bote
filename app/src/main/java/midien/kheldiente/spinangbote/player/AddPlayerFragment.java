@@ -17,7 +17,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import midien.kheldiente.spinangbote.R;
 import midien.kheldiente.spinangbote.spintable.SpinTableActivity;
@@ -41,7 +43,7 @@ public class AddPlayerFragment extends Fragment
     private EditPlayerDialog mEditPlayerDialog;
     private Button mNextBtn;
 
-    List<EditPlayerTextView> mPlayerNames = new ArrayList<>(0);
+    Map<String, EditPlayerTextView> mPlayerNames = new HashMap<>(0);
 
     public static AddPlayerFragment newInstance() {
         return new AddPlayerFragment();
@@ -78,47 +80,44 @@ public class AddPlayerFragment extends Fragment
                 android.R.anim.fade_out).toBundle());
     }
 
-    private static ArrayList<String> getAllPlayers(List<EditPlayerTextView> pv) {
+    private static ArrayList<String> getAllPlayers(Map<String, EditPlayerTextView> pv) {
         ArrayList<String> p = new ArrayList<>(0);
-        for(EditPlayerTextView ptv: pv) {
-            p.add(ptv.name); // Extract name from {@link EditPlayerTextView}
+        for(Map.Entry<String, EditPlayerTextView> ptv: pv.entrySet()) {
+            p.add(ptv.getValue().name); // Extract name from {@link EditPlayerTextView}
         }
         return p;
     }
 
     @Override
-    public void addPlayerView(final String player) {
+    public void addPlayerView(final String p) {
         if(mPlayerNames.size() < MAX_PLAYERS) {
             // Set up player edit text
             EditPlayerTextView ept = new EditPlayerTextView(getContext());
-            ept.setName(player);
+            ept.setName(p);
             // Add to list for reference
-            mPlayerNames.add(ept);
+            mPlayerNames.put(p, ept);
             // Add to list view
             mPlayerList.addView(ept);
-            // Set index to EditPlayerTextView setTag()
-            ept.setId(mPlayerNames.size() - 1);
             // Then add onClickListener to show player editor
             ept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int index = view.getId();
-                    String player = mPlayerNames.get(index).name;
-                    showEditPlayerView(index, player);
+                    String player = mPlayerNames.get(p).name;
+                    showEditPlayerView(p, player);
                 }
             });
         }
     }
 
     @Override
-    public void deletePlayerView(int index) {
-        mPlayerNames.remove(index);
-        mPlayerList.removeViewAt(index);
+    public void deletePlayerView(String key) {
+        mPlayerList.removeView(mPlayerNames.get(key));
+        mPlayerNames.remove(key);
     }
 
     @Override
-    public void updatePlayerView(int index, String updatedName) {
-        mPlayerNames.get(index).setName(updatedName);
+    public void updatePlayerView(String key, String updatedName) {
+        mPlayerNames.get(key).setName(updatedName);
     }
 
     @Override
@@ -137,10 +136,10 @@ public class AddPlayerFragment extends Fragment
     }
 
     @Override
-    public void showEditPlayerView(int index, String name) {
+    public void showEditPlayerView(String key, String name) {
         mEditPlayerDialog = new EditPlayerDialog(getContext());
         mEditPlayerDialog.setOnUpdateListener(this);
-        mEditPlayerDialog.setValues(index, name);
+        mEditPlayerDialog.setValues(key, name);
         if(mPlayerNames.size() <= MIN_PLAYERS) // If true, user cannot delete anymore players
             mEditPlayerDialog.cannotBeDeleted(false);
 
@@ -178,11 +177,11 @@ public class AddPlayerFragment extends Fragment
     }
 
     @Override
-    public void onUpdate(int index, String name) {
+    public void onUpdate(String key, String name) {
         if(TextUtils.isEmpty(name))
             return;
 
-        if(index == - 1) {
+        if(TextUtils.isEmpty(key)) {
             boolean added = mPresenter.addPlayer(name);
             if(added) {
                 showMessageInfo(getString(R.string.added_player_msg, name));
@@ -193,13 +192,13 @@ public class AddPlayerFragment extends Fragment
             } else
                 showMessageInfo(getString(R.string.added_player_fail));
         } else {
-            mPresenter.updatePlayerName(index, name);
+            mPresenter.updatePlayerName(key, name);
         }
     }
 
     @Override
-    public void onDelete(int index) {
-        mPresenter.deletePlayer(index);
+    public void onDelete(String key) {
+        mPresenter.deletePlayer(key);
     }
 
     @Override

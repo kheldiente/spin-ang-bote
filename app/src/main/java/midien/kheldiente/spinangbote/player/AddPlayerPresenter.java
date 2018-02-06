@@ -3,7 +3,9 @@ package midien.kheldiente.spinangbote.player;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AddPlayerPresenter implements AddPlayerContract.Presenter {
 
@@ -12,11 +14,11 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
 
     private static final int MAX_PLAYERS = 8;
 
-    private static List<String> mPlayers = new ArrayList<>(0);
+    private static Map<String, String> mPlayers = new HashMap<>(0);
 
     static {
-        mPlayers.add("Player 1");
-        mPlayers.add("Player 2");
+        mPlayers.put("Player 2", "Player 2");
+        mPlayers.put("Player 1","Player 1");
     }
 
     public AddPlayerPresenter(@NonNull AddPlayerContract.View addPlayerView) {
@@ -31,7 +33,7 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
     public boolean addPlayer(String player) {
         if(!nameExists(player) && !nameExceededLength(player)) {
             // Add to list for reference
-            mPlayers.add(player);
+            mPlayers.put(player, player);
             // Add to ui
             mAddPlayerView.addPlayerView(player);
             // After adding the player view onto the ui, check if it reached the allowed max players
@@ -44,9 +46,9 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
     }
 
     @Override
-    public void deletePlayer(int index) {
-        mPlayers.remove(index);
-        mAddPlayerView.deletePlayerView(index);
+    public void deletePlayer(String key) {
+        mPlayers.remove(key);
+        mAddPlayerView.deletePlayerView(key);
         // After removing player, check if still did not reached the max player count
         if(mPlayers.size() < MAX_PLAYERS) {
             mAddPlayerView.showAddMoreView();
@@ -54,15 +56,15 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
     }
 
     @Override
-    public void updatePlayerName(int index, String updatedName) {
-        mPlayers.set(index, updatedName);
-        mAddPlayerView.updatePlayerView(index, updatedName);
+    public void updatePlayerName(String key, String updatedName) {
+        mPlayers.put(updatedName, updatedName);
+        mAddPlayerView.updatePlayerView(key, updatedName);
         mAddPlayerView.hideEditPlayerView();
     }
 
     @Override
-    public String getPlayer(int index) {
-        return mPlayers.get(index);
+    public String getPlayer(String key) {
+        return mPlayers.get(key);
     }
 
     @Override
@@ -72,7 +74,7 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
 
     @Override
     public boolean nameExists(String name) {
-        return mPlayers.contains(name);
+        return mPlayers.containsKey(name);
     }
 
     @Override
@@ -82,8 +84,8 @@ public class AddPlayerPresenter implements AddPlayerContract.Presenter {
 
     @Override
     public void loadPlayers() {
-        for(String p: mPlayers) {
-            mAddPlayerView.addPlayerView(p);
+        for(Map.Entry<String, String> p: mPlayers.entrySet()) {
+            mAddPlayerView.addPlayerView(p.getValue());
         }
     }
 
