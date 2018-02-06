@@ -2,11 +2,13 @@ package midien.kheldiente.spinangbote.views;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -70,9 +72,25 @@ public class EditPlayerDialog extends Dialog implements View.OnClickListener {
 
         // Set player name to edit
         mNameEditTxt.setText(mName);
+        mNameEditTxt.setSelection(mName.length());
 
         mCancelIv.setOnClickListener(this);
         mOkIv.setOnClickListener(this);
+
+        forceFocus();
+    }
+
+    private void forceFocus() {
+        mNameEditTxt.requestFocus();
+        // Open keyboard
+        ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
+                .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+    private void clearFocus() {
+        // Close keyboard
+        ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(mNameEditTxt.getWindowToken(), 0);
     }
 
     private void updateName() {
@@ -98,4 +116,5 @@ public class EditPlayerDialog extends Dialog implements View.OnClickListener {
                 break;
         }
     }
+
 }

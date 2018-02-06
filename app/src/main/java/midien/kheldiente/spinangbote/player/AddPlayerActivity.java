@@ -27,7 +27,5 @@ public class AddPlayerActivity extends AppCompatActivity {
 
         // Create the presenter
         mAddPlayerPresenter = new AddPlayerPresenter(addPlayerFragment);
-
-
     }
 }
