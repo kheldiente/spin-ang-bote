@@ -6,7 +6,7 @@
     android:background="@drawable/floor_bg"
     android:padding="@dimen/text_size_20">
 
-    <EditText
+    <midien.kheldiente.spinangbote.views.PlayerEditText
         android:id="@+id/add_edittxt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
