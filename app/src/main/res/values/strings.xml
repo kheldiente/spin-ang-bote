@@ -5,4 +5,5 @@
     <string name="next_label">Next</string>
     <string name="added_player_msg" formatted="false">Added player %s!</string>
     <string name="added_player_fail">Invalid name!</string>
+    <string name="play_label">Play</string>
 </resources>

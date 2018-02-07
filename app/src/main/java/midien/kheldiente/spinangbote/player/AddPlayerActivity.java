@@ -29,4 +29,10 @@ public class AddPlayerActivity extends BaseActivity {
         // Create the presenter
         mAddPlayerPresenter = new AddPlayerPresenter(addPlayerFragment);
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
 }

@@ -1,16 +1,21 @@
 package midien.kheldiente.spinangbote.splash;
 
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.List;
 
 import midien.kheldiente.spinangbote.BaseActivity;
 import midien.kheldiente.spinangbote.R;
+import midien.kheldiente.spinangbote.player.AddPlayerActivity;
+import midien.kheldiente.spinangbote.spintable.SpinTableActivity;
 import midien.kheldiente.spinangbote.views.BannerView;
 
 public class SplashActivity extends BaseActivity {
@@ -18,21 +23,32 @@ public class SplashActivity extends BaseActivity {
     private static final String TAG = SplashActivity.class.getSimpleName();
 
     private BannerView mBannerView;
+    private Button mPlayBtn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        // Start animation on banner
         mBannerView = findViewById(R.id.banner);
         mBannerView.startAnimation();
-        findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
+
+        mPlayBtn = findViewById(R.id.btn_play);
+        mPlayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mBannerView.startAnimation();
+                goToAddPlayer();
             }
         });
 
+    }
+
+    private void goToAddPlayer() {
+        Intent spinTableAct = new Intent(this, AddPlayerActivity.class);
+        startActivity(spinTableAct, ActivityOptionsCompat.makeCustomAnimation(this,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out).toBundle());
     }
 
     private void getAllAppsInstalled() {

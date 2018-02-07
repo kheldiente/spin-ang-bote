@@ -51,12 +51,14 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
         mTopLinePaint.setColor(Color.BLACK);
         mTopLinePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mTopLinePaint.setStrokeWidth(30);
+        mTopLinePaint.setAlpha(100);
 
         // Setup bottom line paint
         mBottomLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mBottomLinePaint.setColor(Color.BLACK);
         mBottomLinePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mBottomLinePaint.setStrokeWidth(30);
+        mBottomLinePaint.setAlpha(100);
 
 
         // Set up text view
@@ -131,15 +133,12 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
         super.onDraw(canvas);
 
         // Draw top line paint from left to right
-        float topStopX = mTopStopX * mAnimatingFraction;
-        canvas.drawLine(mTopStartX, mTopStartY, topStopX, mTopStopY, mTopLinePaint);
+        canvas.drawLine(mTopStartX, mTopStartY, mTopStopX * mAnimatingFraction, mTopStopY, mTopLinePaint);
 
         //Draw bottom line paint from right to left
-        float bottomStartX = mBottomStopX - (mBottomStopX * mAnimatingFraction);
-        canvas.drawLine(bottomStartX, mBottomStartY, mBottomStopX, mBottomStopY, mBottomLinePaint);
+        canvas.drawLine(mBottomStopX - (mBottomStopX * mAnimatingFraction), mBottomStartY, mBottomStopX, mBottomStopY, mBottomLinePaint);
 
-        // Scale and pivot text view
-        // mTextView.setScaleY(mAnimatingFraction);
+        // Scale y to text view
         mTextView.setScaleY(mAnimatingFraction);
 
     }
