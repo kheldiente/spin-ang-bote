@@ -4,10 +4,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import midien.kheldiente.spinangbote.BaseActivity;
 import midien.kheldiente.spinangbote.R;
 import midien.kheldiente.spinangbote.utils.ActivityUtils;
 
-public class AddPlayerActivity extends AppCompatActivity {
+public class AddPlayerActivity extends BaseActivity {
 
     private static final String TAG = AddPlayerActivity.class.getSimpleName();
 

@@ -7,10 +7,11 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
+import midien.kheldiente.spinangbote.BaseActivity;
 import midien.kheldiente.spinangbote.R;
 import midien.kheldiente.spinangbote.utils.ActivityUtils;
 
-public class SpinTableActivity extends AppCompatActivity {
+public class SpinTableActivity extends BaseActivity {
 
     private static final String TAG = SpinTableActivity.class.getSimpleName();
 
@@ -42,5 +43,11 @@ public class SpinTableActivity extends AppCompatActivity {
         // Create the presenter
         mSpinTableRepresenter = new SpinTablePresenter(spinTableFragment, mPlayers);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

@@ -107,7 +107,7 @@ public class SpinTableView extends ViewGroup {
     @Override
     protected void onLayout(boolean b, int i, int i1, int i2, int i3) {
         // Do nothing. Do not call the superclass method--that would start a layout pass
-        // on this view's children. PieChart lays out its children in onSizeChanged().
+        // on this view's children. SpinTableView lays out its children in onSizeChanged().
     }
 
     /**
@@ -115,7 +115,7 @@ public class SpinTableView extends ViewGroup {
      * it can be called from both constructors
      */
     private void init() {
-        // Force the background to software rendering because otherwise the Clear
+        // Force the background to software rendering because otherwise the Clear {@link PorterDuffXferMode}
         // filter won't work
         setLayerToSW(this);
 
