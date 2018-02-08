@@ -14,7 +14,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-public class EditPlayerTextView extends AppCompatTextView {
+public class EditPlayerTextView extends AppCompatTextView implements EditPlayer {
 
     public String name = "";
 
@@ -80,10 +80,6 @@ public class EditPlayerTextView extends AppCompatTextView {
         invalidate();
     }
 
-    public void setName(String name) {
-        this.name = name;
-        setText(name);
-    }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -100,5 +96,11 @@ public class EditPlayerTextView extends AppCompatTextView {
         super.onDraw(canvas);
 
         canvas.drawLine(mLineStartX, mLineStartY, mLineStopX, mLineStopY, mLinePaint);
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+        setText(name);
     }
 }
