@@ -1,11 +1,14 @@
 package midien.kheldiente.spinangbote.views;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -18,11 +21,11 @@ import android.widget.TextView;
 
 import midien.kheldiente.spinangbote.R;
 
-public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdateListener {
+public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdateListener, ValueAnimator.AnimatorListener {
 
     private Paint mTopLinePaint; // From left to right
     private Paint mBottomLinePaint; // From right to left
-    private TextView mTextView;
+    private BannerTextView mTextView;
 
     private float mTopStartX, mTopStartY, mTopStopX, mTopStopY;
     private float mTextLeft, mTextTop, mTextRight, mTextBottom;
@@ -60,14 +63,8 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
         mBottomLinePaint.setStrokeWidth(30);
         mBottomLinePaint.setAlpha(100);
 
-
         // Set up text view
-        mTextView = new TextView(getContext());
-        mTextView.setTextColor(Color.BLACK);
-        mTextView.setText(getResources().getString(R.string.app_name));
-        mTextView.setTextSize(50);
-        mTextView.setGravity(Gravity.CENTER);
-        // mTextView.setBackgroundColor(Color.BLACK);
+        mTextView = new BannerTextView(getContext());
 
         // Add text layout
         addView(mTextView);
@@ -77,6 +74,7 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
         mAnimator.setInterpolator(new AccelerateInterpolator());
         mAnimator.setDuration(400);
         mAnimator.addUpdateListener(this);
+        mAnimator.addListener(this);
         mAnimatingFraction = 0f;
 
         // MUST call this to init call onDraw method
@@ -137,10 +135,6 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
 
         //Draw bottom line paint from right to left
         canvas.drawLine(mBottomStopX - (mBottomStopX * mAnimatingFraction), mBottomStartY, mBottomStopX, mBottomStopY, mBottomLinePaint);
-
-        // Scale y to text view
-        mTextView.setScaleY(mAnimatingFraction);
-
     }
 
     @Override
@@ -150,5 +144,85 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
 
         // Must call this to ensure view re-draws
         invalidate();
+    }
+
+    @Override
+    public void onAnimationStart(Animator animator) {
+        mTextView.setScaleY(0f);
+    }
+
+    @Override
+    public void onAnimationEnd(Animator animator) {
+        mTextView.startAnimation();
+    }
+
+    @Override
+    public void onAnimationCancel(Animator animator) {}
+
+    @Override
+    public void onAnimationRepeat(Animator animator) {}
+
+    private class BannerTextView extends AppCompatTextView implements ValueAnimator.AnimatorUpdateListener {
+
+        // Animator
+        private ValueAnimator mTextViewAnimator;
+        private float mTextAnimatingFraction;
+
+        public BannerTextView(Context context) {
+            super(context);
+            init();
+        }
+
+        public BannerTextView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        private void init() {
+            setTextColor(Color.BLACK);
+            setText(getResources().getString(R.string.app_name));
+            setTextSize(50);
+            setGravity(Gravity.CENTER);
+
+            // Setup value animator
+            mTextViewAnimator = new ValueAnimator();
+            mTextViewAnimator.setInterpolator(new AccelerateInterpolator());
+            mTextViewAnimator.setDuration(400);
+            mTextViewAnimator.addUpdateListener(this);
+            mTextAnimatingFraction = 0f;
+
+            invalidate();
+        }
+
+        public void startAnimation() {
+            // For some reason, view cannot start to animate unless the scaleY (for this instance) is more than 0.0f
+            // So set like a value > 0.0f just so the animator has some pixels to animate??
+            mTextView.setScaleY(0.01f);
+            mTextViewAnimator.setFloatValues(0f, 1f);
+            mTextViewAnimator.start();
+        }
+
+        @Override
+        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+            super.onLayout(changed, left, top, right, bottom);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            // Scale y to text view
+            setScaleY(mTextAnimatingFraction);
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            // Get our float from the animation. This method returns the interpolated float.
+            mTextAnimatingFraction = animation.getAnimatedFraction();
+
+            // Must call this to ensure view re-draws
+            postInvalidate();
+        }
+
     }
 }
