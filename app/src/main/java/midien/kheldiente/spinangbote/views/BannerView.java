@@ -168,6 +168,8 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
         private ValueAnimator mTextViewAnimator;
         private float mTextAnimatingFraction;
 
+        private static final int FLIPS = 2;
+
         public BannerTextView(Context context) {
             super(context);
             init();
@@ -187,7 +189,9 @@ public class BannerView extends ViewGroup implements ValueAnimator.AnimatorUpdat
             // Setup value animator
             mTextViewAnimator = new ValueAnimator();
             mTextViewAnimator.setInterpolator(new AccelerateInterpolator());
-            mTextViewAnimator.setDuration(400);
+            mTextViewAnimator.setDuration(200);
+            mTextViewAnimator.setRepeatMode(ValueAnimator.REVERSE);
+            mTextViewAnimator.setRepeatCount(FLIPS);
             mTextViewAnimator.addUpdateListener(this);
             mTextAnimatingFraction = 0f;
 
