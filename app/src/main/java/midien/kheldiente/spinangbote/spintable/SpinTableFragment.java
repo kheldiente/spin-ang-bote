@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import midien.kheldiente.spinangbote.R;
 import midien.kheldiente.spinangbote.views.SpinTableView;
+import midien.kheldiente.spinangbote.views.TruthDareDialog;
 
 
 public class SpinTableFragment extends Fragment implements SpinTableContract.View, SpinTableView.OnBottleStoppedListener{
@@ -21,6 +22,7 @@ public class SpinTableFragment extends Fragment implements SpinTableContract.Vie
 
     private SpinTableView mSpinTableView;
     private Button mSpinBtn;
+    private TruthDareDialog mTruthDareDialog;
 
     public static SpinTableFragment newInstance() {
         return new SpinTableFragment();
@@ -53,6 +55,9 @@ public class SpinTableFragment extends Fragment implements SpinTableContract.Vie
     @Override
     public void showPointedPlayer(String player) {
         Log.d(TAG, String.format("Bottle stopped to player: %s", player));
+        mTruthDareDialog = TruthDareDialog.newInstance();
+        mTruthDareDialog.setPlayer(player);
+        mTruthDareDialog.show(getFragmentManager(), TAG);
     }
 
     @Override
