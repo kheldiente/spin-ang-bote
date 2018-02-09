@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/floor_bg"
     android:padding="@dimen/text_size_40"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
     <TextView
-        android:id="@+id/consequence_msg"
+        android:id="@+id/truthdare_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Consequence"
@@ -15,9 +14,17 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textAllCaps="true"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        />
+        android:layout_gravity="center_horizontal" />
 
-</android.support.constraint.ConstraintLayout>
+
+    <Button
+        android:id="@+id/btn_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_below="@id/truthdare_msg"
+        style="@style/AppButton"
+        android:text="@string/done_label"
+        android:layout_gravity="center_horizontal" />
+
+</LinearLayout>

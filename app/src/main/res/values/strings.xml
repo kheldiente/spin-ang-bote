@@ -6,5 +6,6 @@
     <string name="added_player_msg" formatted="false">Added player %s!</string>
     <string name="added_player_fail">Invalid name!</string>
     <string name="play_label">Play</string>
-    <string name="truth_or_dare_msg">Truth or dare</string>
+    <string name="truth_or_dare_msg">%s, Truth or dare?!</string>
+    <string name="done_label">Done</string>
 </resources>
